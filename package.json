@@ -1,7 +1,7 @@
 {
-  "name": "vaarialist",
+  "name": "ariaverselist",
   "version": "0.1.0",
-  "description": "listing service for vaaria game servers",
+  "description": "listing service for Ariaverse™ game servers",
   "main": "server.js",
   "dependencies": {
     "dataio": "^0.1.3",
