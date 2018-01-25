@@ -4,7 +4,7 @@
   "description": "listing service for Ariaverse™ game servers",
   "main": "server.js",
   "dependencies": {
-    "dataio": "^0.1.3",
+    "body-parser": "^1.17.2",
     "express": "^4.14.1",
     "node-uuid": "^1.4.7",
     "underscore": "^1.8.3"

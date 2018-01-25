@@ -1,66 +1,101 @@
 'use strict';
 
 const Express = require('express');
-const io = require('dataio');
 const UUID = require('node-uuid');
 const _ = require('underscore');
 const Config = require('./config');
+const bodyparser = require('body-parser');
+
+const timeOut = 60;
+
+const fakeData = [
+	{
+		icon: 5,
+		id: "test04",
+		name: "Beta Prime",
+		address: "127.0.0.1:7777",
+		description: "Hi mom, look at me. I am an Ariaverse Server! So, rad!",
+		maxPlayers: 10,
+		numPlayers: 10,
+		ping: 0
+	}
+];
 
 const serverList = [];
 
+const serverUpdateCheck = setInterval(() => {	
+	for(let i = 0; i < serverList.length; i++) {
+		let s = serverList[i];
+		const diff = (new Date().getTime() - s.lastUpdate) / 1000;
+		
+		if(diff >= timeOut) {
+			serverList.splice(i,1);
+			i--;
+		}
+	}
+}, 60000);
+
 const app = Express();
 
+app.use(bodyparser.json());
+
 app.get('/servers', (req, res) => {
-    res.json(serverList);
+    let l = '';
+	
+	for(let i = 0; i < serverList.length; i++) {
+        const line = JSON.stringify(serverList[i]).replace(/\r\n/gi,'');
+        l += line + '\r\n';
+    }
+    l = l.substring(0, l.length - 2);
+
+    res.end(l);
 });
 
-const nio = new io(app.listen(Config.port, Config.address, () => {console.log('listening on ' + Config.address + ":" + Config.port)})).on('connection', (socket) => {
-    socket.id = UUID.v4();
-    socket.on('close', function() {
-        var i = _.findIndex(serverList, (item) => {
-                if(item.id == this.id) {
-                    return true;
-                }
-
-                return false;
-        });
-
-        if(i > -1) {
-            console.log('listing removed');
-            serverList.splice(i,1);
+app.post('/list', (req, res) => {
+    const listing = req.body;
+    let i = _.findIndex(serverList, (item) => {
+        if(item.id == listing.id) {
+            return true;
         }
+
+        return false;
     });
-    socket.on('list', function(name, desc, host, port) {
-        var h = {
-            id: socket.id,
-            name: name,
-            description: desc,
-            host: host,
-            port: port
-        };
 
-        var i = _.findIndex(serverList, (item) => {
-            if(item.id == this.id) {
-                return true;
-            }
+    if(i > -1) {
+        console.log('updating server listing: ' + JSON.stringify(listing));
+        const already = serverList[i];
+        already.maxPlayers = listing.maxPlayers;
+        already.numPlayers = listing.numPlayers;
+        already.name = listing.name;
+        already.description = listing.description;
+		already.lastUpdate = (new Date().getTime());
+    }
+    else {
+        console.log('listing new server: ' + JSON.stringify(listing));
+		listing.lastUpdate = (new Date().getTime());
+        serverList.push(listing);
+    }
 
-            return false;
-        });
-
-        if(i == -1) {
-            console.log('new listing received');
-            serverList.push(h);
-        }
-        //otherwise just update the listing
-        else {
-            console.log('updating listing');
-            var old = serverList[i];
-
-            old.name = name;
-            old.port = port;
-            old.description = desc;
-            old.host = host;
-        }
-    });
+    res.end('OK');
 });
 
+app.post('/unlist', (req, res) => {
+	console.log('unlist called');
+    const listing = req.body;
+    let i = _.findIndex(serverList, (item) => {
+        if(item.id == listing.id) {
+            return true;
+        }
+
+        return false;
+    });
+
+    if(i > -1) {
+        console.log('unlisting server');
+        serverList.splice(i,1);
+    }
+
+    res.end('OK');
+});
+
+app.listen(Config.port, Config.address, () => {console.log('listening on ' + Config.address + ":" + Config.port)});
