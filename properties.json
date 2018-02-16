@@ -1,4 +1,4 @@
 {
     "port": 34860,
-    "address": "localhost"
+    "address": "0.0.0.0"
 }

@@ -1,25 +1,11 @@
 'use strict';
 
 const Express = require('express');
-const UUID = require('node-uuid');
 const _ = require('underscore');
 const Config = require('./config');
 const bodyparser = require('body-parser');
 
 const timeOut = 60;
-
-const fakeData = [
-	{
-		icon: 5,
-		id: "test04",
-		name: "Beta Prime",
-		address: "127.0.0.1:7777",
-		description: "Hi mom, look at me. I am an Ariaverse Server! So, rad!",
-		maxPlayers: 10,
-		numPlayers: 10,
-		ping: 0
-	}
-];
 
 const serverList = [];
 
