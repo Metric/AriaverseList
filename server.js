@@ -40,7 +40,7 @@ app.get('/servers', (req, res) => {
 app.post('/list', (req, res) => {
     const listing = req.body;
     let i = _.findIndex(serverList, (item) => {
-        if(item.id == listing.id) {
+        if(item.iD == listing.iD) {
             return true;
         }
 
@@ -69,7 +69,7 @@ app.post('/unlist', (req, res) => {
 	console.log('unlist called');
     const listing = req.body;
     let i = _.findIndex(serverList, (item) => {
-        if(item.id == listing.id) {
+        if(item.iD == listing.iD) {
             return true;
         }
 
