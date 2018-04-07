@@ -4,9 +4,10 @@ const Express = require('express');
 const _ = require('underscore');
 const Config = require('./config');
 const bodyparser = require('body-parser');
+const ServerValidator = require('./validation');
 
+const validator = new ServerValidator();
 const timeOut = 60;
-
 const serverList = [];
 
 const serverUpdateCheck = setInterval(() => {	
@@ -38,7 +39,15 @@ app.get('/servers', (req, res) => {
 });
 
 app.post('/list', (req, res) => {
-    const listing = req.body;
+	const listing = req.body;
+	
+	listing = validator.validateAndClean(listing);
+
+	if(!listing) {
+		res.end('OK');
+		return;
+	}
+
     let i = _.findIndex(serverList, (item) => {
         if(item.iD == listing.iD) {
             return true;
@@ -59,7 +68,7 @@ app.post('/list', (req, res) => {
     else {
         console.log('listing new server: ' + JSON.stringify(listing));
 		listing.lastUpdate = (new Date().getTime());
-        serverList.push(listing);
+		serverList.push(listing);
     }
 
     res.end('OK');
@@ -67,7 +76,15 @@ app.post('/list', (req, res) => {
 
 app.post('/unlist', (req, res) => {
 	console.log('unlist called');
-    const listing = req.body;
+	const listing = req.body;
+	
+	listing = validator.validateAndClean(listing);
+
+	if(!listing) {
+		res.end('OK');
+		return;
+	}
+
     let i = _.findIndex(serverList, (item) => {
         if(item.iD == listing.iD) {
             return true;
