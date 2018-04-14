@@ -39,9 +39,13 @@ app.get('/servers', (req, res) => {
 });
 
 app.post('/list', (req, res) => {
-	const listing = req.body;
-	
+	let listing = req.body;
+    
+    console.log('incoming before clean: ' + JSON.stringify(listing));
+    
 	listing = validator.validateAndClean(listing);
+
+    console.log('incoming after clean: ' + JSON.stringify(listing));
 
 	if(!listing) {
 		res.end('OK');
@@ -76,7 +80,7 @@ app.post('/list', (req, res) => {
 
 app.post('/unlist', (req, res) => {
 	console.log('unlist called');
-	const listing = req.body;
+	let listing = req.body;
 	
 	listing = validator.validateAndClean(listing);
 
